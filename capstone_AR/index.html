@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+		</style>
+		<link type="text/css" rel="stylesheet" href="main.css">
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<script src="build/three.js"></script>
+		<!--AR.js-->
+		<script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@1c2407b26c61958baa93967b5412487cd94b290b/dist/aframe-master.min.js"></script>
+		<script src="https://raw.githack.com/AR-js-org/AR.js/3.3.3/aframe/build/aframe-ar-nft.js"></script>  
+		<!-- <script>
+			THREEx.ArToolkitContext.baseURL = "build/three.js"
+		</script>  -->
+	</head>
+	<body>
+		<video id="video" style="display:none" autoplay playsinline></video>
+
+		<script>
+
+			// ① arToolkitSource 인스턴스 객체 생성
+
+			var arToolkitSource = new THREEx.ArToolkitSource({   // ②카메라 탐색
+				sourceType : 'webcam',
+			})
+
+			arToolkitSource.init(function onReady(){
+				// handle resize of renderer
+				arToolkitSource.onResizeElement();
+			});
+
+			var renderer = new THREE.WebGLRenderer({
+				// antialias: true,
+				alpha: true
+			});
+
+			var onRenderFcts= [];
+
+			var scene = new THREE.Scene();  // const
+			window.scene = scene;
+
+			//
+			var ambient = new THREE.AmbientLight( 0x666666 );
+			scene.add( ambient );
+
+			var directionalLight = new THREE.DirectionalLight( 0x887766 );
+			directionalLight.position.set( -1, 1, 1 ).normalize();
+			scene.add( directionalLight );
+			//
+
+			// var camera = new THREE.Camera();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+			scene.add( camera );
+
+			// ① WebGL랜더러 설정
+			renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			// renderer.domElement.style.position = 'absolute'
+			// renderer.domElement.style.top = '0px'
+			// renderer.domElement.style.left = '0px'
+			document.body.appendChild( renderer.domElement );
+
+			// renderer.setSize( window.innerWidth, window.innerHeight );
+			// document.body.appendChild( renderer.domElement );
+
+			
+
+			//
+			// console.log(scene);
+			// console.log(camera);
+			// console.log(renderer);
+			//
+
+			// ③디바이스 크기에 맞게 사이즈 조절하는 함수 설정
+			
+			window.addEventListener( 'resize', onWindowResize, false );
+
+			function onWindowResize() {
+				arToolkitSource.onResizeElement();  // param: renderer.domElement
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+			// handle resize
+			// window.addEventListener('resize', function(){
+				// handle arToolkitSource resize
+			// })
+			
+			const geometry = new THREE.BoxGeometry();
+			const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+			const cube = new THREE.Mesh( geometry, material );
+			scene.add( cube );
+
+			camera.position.z = 5;
+
+			const animate = function () {
+				requestAnimationFrame( animate );
+
+				cube.rotation.x += 0.01;
+				cube.rotation.y += 0.01;
+
+				renderer.render( scene, camera );
+			};
+
+			animate();
+		</script>
+	</body>
+</html>
