@@ -13,24 +13,17 @@
 		<!--AR.js-->
 		<script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@1c2407b26c61958baa93967b5412487cd94b290b/dist/aframe-master.min.js"></script>
 		<script src="https://raw.githack.com/AR-js-org/AR.js/3.3.3/aframe/build/aframe-ar-nft.js"></script>  
-		<!-- <script>
-			THREEx.ArToolkitContext.baseURL = "build/three.js"
-		</script>  -->
 	</head>
 	<body>
-		<video id="video" style="display:none" autoplay playsinline></video>
-
 		<script>
-
-			// ① arToolkitSource 인스턴스 객체 생성
-
-			var arToolkitSource = new THREEx.ArToolkitSource({   // ②카메라 탐색
+			// arToolkitSource 인스턴스 객체 생성
+			var arToolkitSource = new THREEx.ArToolkitSource({   // 카메라 탐색
 				sourceType : 'webcam',
 			})
 
 			arToolkitSource.init(function onReady(){
-				// handle resize of renderer
-				arToolkitSource.onResizeElement();
+				// resize camera
+				window.addEventListener( 'resize', onWindowResize, true );
 			});
 
 			var renderer = new THREE.WebGLRenderer({
@@ -67,7 +60,6 @@
 
 			// renderer.setSize( window.innerWidth, window.innerHeight );
 			// document.body.appendChild( renderer.domElement );
-
 			
 
 			//
@@ -78,7 +70,7 @@
 
 			// ③디바이스 크기에 맞게 사이즈 조절하는 함수 설정
 			
-			window.addEventListener( 'resize', onWindowResize, false );
+			window.addEventListener( 'resize', onWindowResize, true );
 
 			function onWindowResize() {
 				arToolkitSource.onResizeElement();  // param: renderer.domElement
@@ -94,6 +86,7 @@
 				// handle arToolkitSource resize
 			// })
 			
+			/*
 			const geometry = new THREE.BoxGeometry();
 			const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 			const cube = new THREE.Mesh( geometry, material );
@@ -111,6 +104,10 @@
 			};
 
 			animate();
+			*/
+
+			renderer.render( scene, camera );
+
 		</script>
 	</body>
 </html>
