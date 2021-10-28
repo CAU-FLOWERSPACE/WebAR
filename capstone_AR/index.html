@@ -16,6 +16,9 @@
 	</head>
 	<body>
 		<script>
+			// import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+			// import { ARButton } from 'https://unpkg.com/three/examples/jsm/webxr/ARButton.js';
+
 			// arToolkitSource 인스턴스 객체 생성
 			var arToolkitSource = new THREEx.ArToolkitSource({   // 카메라 탐색
 				sourceType : 'webcam',
@@ -31,18 +34,18 @@
 				alpha: true
 			});
 
-			var onRenderFcts= [];
+			// var onRenderFcts= [];
 
 			var scene = new THREE.Scene();  // const
 			window.scene = scene;
 
-			//
-			var ambient = new THREE.AmbientLight( 0x666666 );
-			scene.add( ambient );
+			// camera 키는 기능과는 별개인 것 같음!!
+			// var ambient = new THREE.AmbientLight( 0x666666 );
+			// scene.add( ambient );
 
-			var directionalLight = new THREE.DirectionalLight( 0x887766 );
-			directionalLight.position.set( -1, 1, 1 ).normalize();
-			scene.add( directionalLight );
+			// var directionalLight = new THREE.DirectionalLight( 0x887766 );
+			// directionalLight.position.set( -1, 1, 1 ).normalize();
+			// scene.add( directionalLight );
 			//
 
 			// var camera = new THREE.Camera();
@@ -53,25 +56,20 @@
 			renderer.setClearColor(new THREE.Color('lightgrey'), 0)
 			renderer.setPixelRatio( window.devicePixelRatio );
 			renderer.setSize( window.innerWidth, window.innerHeight );
+			// renderer.xr.enabled = true;  
 			// renderer.domElement.style.position = 'absolute'
 			// renderer.domElement.style.top = '0px'
 			// renderer.domElement.style.left = '0px'
 			document.body.appendChild( renderer.domElement );
 
-			// renderer.setSize( window.innerWidth, window.innerHeight );
-			// document.body.appendChild( renderer.domElement );
-			
 
-			//
 			// console.log(scene);
 			// console.log(camera);
 			// console.log(renderer);
-			//
 
-			// ③디바이스 크기에 맞게 사이즈 조절하는 함수 설정
-			
-			window.addEventListener( 'resize', onWindowResize, true );
+			// window.addEventListener( 'resize', onWindowResize, true );
 
+			// device size에 맞춰 사이즈 조절
 			function onWindowResize() {
 				arToolkitSource.onResizeElement();  // param: renderer.domElement
 
@@ -79,7 +77,6 @@
 				camera.updateProjectionMatrix();
 
 				renderer.setSize( window.innerWidth, window.innerHeight );
-
 			}
 			// handle resize
 			// window.addEventListener('resize', function(){
