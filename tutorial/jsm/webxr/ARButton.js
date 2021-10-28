@@ -1,20 +1,24 @@
 class ARButton {
 
-	static createButton( renderer, sessionInit = {} ) {
-
+	// ABButton 의 class method
+	static createButton( renderer, camera, sessionInit = {} ) {
 		const button = document.createElement( 'button' );
+		var arToolkitSource;
 
+		/* START showStartAR */
 		function showStartAR( /*device*/ ) {
 
 			let currentSession = null;
 
+			// START AR 버튼이 눌리면 불리는 함수!!!
 			function onSessionStarted( session ) {
 
+				// AR end event 등록
 				session.addEventListener( 'end', onSessionEnded );
+				renderer.xr.setReferenceSpaceType( 'local' ); // 이건 뭐지
+				// renderer.xr.setSession( session );  // 얘가 hall_empty.glb rendering 해줌
 
-				renderer.xr.setReferenceSpaceType( 'local' );
-				renderer.xr.setSession( session );
-				button.textContent = 'STOP AR';
+				button.textContent = 'STOP AR'; 
 
 				currentSession = session;
 
@@ -27,47 +31,72 @@ class ARButton {
 				button.textContent = 'START AR';
 
 				currentSession = null;
-
 			}
 
-			//
+			// button 속성
 
 			button.style.display = '';
-
 			button.style.cursor = 'pointer';
 			button.style.left = 'calc(50% - 50px)';
 			button.style.width = '100px';
-
 			button.textContent = 'START AR';
 
 			button.onmouseenter = function () {
 
 				button.style.opacity = '1.0';
-
 			};
 
 			button.onmouseleave = function () {
 
 				button.style.opacity = '0.5';
-
 			};
 
+			// button 이 클릴될 때 불리는 함수 !!
 			button.onclick = function () {
 
+				// 현재 session 이 없으면 requestSession 을 보낸 후 AR을 시작하고, 있으면 AR 을 종료시킨다.
 				if ( currentSession === null ) {
 
 					navigator.xr.requestSession( 'immersive-ar', sessionInit ).then( onSessionStarted );
+					// requestSesstion 을 보내면 response 에서 hall_empty.glb 받음
+
+					// arToolkitSource 인스턴스 객체 생성
+					arToolkitSource = new THREEx.ArToolkitSource({   // 카메라 탐색
+						sourceType : 'webcam',
+						sourceWidth: window.innerWidth,
+        				sourceHeight: window.innerHeight,
+						// resolution displayed for the source
+						displayWidth: window.innerWidth,
+						displayHeight: window.innerHeight,
+					})
+
+					arToolkitSource.init(function onReady(){
+						// resize camera
+						window.addEventListener( 'resize', onWindowResize, true );
+					});
+
 
 				} else {
 
+					arToolkitSource.end();
 					currentSession.end();
-
 				}
-
 			};
 
-		}
+			// device size에 맞춰 camera 사이즈 조절
+			function onWindowResize() {
+				arToolkitSource.onResizeElement(); 
 
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}	
+
+		}
+		/* END showStartAR */
+
+		// AR 기능을 지원하지 않을 때, change disablebutton
 		function disableButton() {
 
 			button.style.display = '';
@@ -78,9 +107,7 @@ class ARButton {
 
 			button.onmouseenter = null;
 			button.onmouseleave = null;
-
 			button.onclick = null;
-
 		}
 
 		function showARNotSupported() {
@@ -88,9 +115,9 @@ class ARButton {
 			disableButton();
 
 			button.textContent = 'AR NOT SUPPORTED';
-
 		}
 
+		//
 		function stylizeElement( element ) {
 
 			element.style.position = 'absolute';
@@ -108,35 +135,31 @@ class ARButton {
 
 		}
 
-		if ( 'xr' in navigator ) {
+		if ( 'xr' in navigator ) {  
 
 			button.id = 'ARButton';
 			button.style.display = 'none';
 
 			stylizeElement( button );
 
+			// isSessionSupported(): resolves to true if the specified WebXR session mode is supported by the user's WebXR device.
 			navigator.xr.isSessionSupported( 'immersive-ar' ).then( function ( supported ) {
-
 				supported ? showStartAR() : showARNotSupported();
-
 			} ).catch( showARNotSupported );
 
 			return button;
-
-		} else {
-
+		} 
+		else {
 			const message = document.createElement( 'a' );
 
 			if ( window.isSecureContext === false ) {
 
 				message.href = document.location.href.replace( /^http:/, 'https:' );
 				message.innerHTML = 'WEBXR NEEDS HTTPS'; // TODO Improve message
-
 			} else {
 
-				message.href = 'https://immersiveweb.dev/';
+				message.href = '';  // 꽃 추천 리스트 페이지로 돌아가기
 				message.innerHTML = 'WEBXR NOT AVAILABLE';
-
 			}
 
 			message.style.left = 'calc(50% - 90px)';
@@ -146,7 +169,6 @@ class ARButton {
 			stylizeElement( message );
 
 			return message;
-
 		}
 
 	}
@@ -154,57 +176,3 @@ class ARButton {
 }
 
 export { ARButton };
-
-
-/*
-			if ( sessionInit.domOverlay === undefined ) {
-
-				var overlay = document.createElement( 'div' );
-				overlay.style.display = 'none';
-				document.body.appendChild( overlay );
-
-				var svg = document.createElementNS( 'http://www.w3.org/2000/svg', 'svg' );
-				svg.setAttribute( 'width', 38 );
-				svg.setAttribute( 'height', 38 );
-				svg.style.position = 'absolute';
-				svg.style.right = '20px';
-				svg.style.top = '20px';
-				svg.addEventListener( 'click', function () {
-
-					currentSession.end();
-
-				} );
-				overlay.appendChild( svg );
-
-				var path = document.createElementNS( 'http://www.w3.org/2000/svg', 'path' );
-				path.setAttribute( 'd', 'M 12,12 L 28,28 M 28,12 12,28' );
-				path.setAttribute( 'stroke', '#fff' );
-				path.setAttribute( 'stroke-width', 2 );
-				svg.appendChild( path );
-
-				if ( sessionInit.optionalFeatures === undefined ) {
-
-					sessionInit.optionalFeatures = [];
-
-				}
-
-				sessionInit.optionalFeatures.push( 'dom-overlay' );
-				sessionInit.domOverlay = { root: overlay };
-
-			}
-
-			async function onSessionStarted( session ) {
-
-				session.addEventListener( 'end', onSessionEnded );
-
-				renderer.xr.setReferenceSpaceType( 'local' );
-
-				await renderer.xr.setSession( session );
-
-				button.textContent = 'STOP AR';
-				sessionInit.domOverlay.root.style.display = '';
-
-				currentSession = session;
-
-			}
-			*/
