@@ -1,5 +1,5 @@
 body {
-    background-color:mistyrose;
+    background-color: aqua;
     color: #fff;
     font-family: "Lato", sans-serif;
   }
@@ -52,8 +52,6 @@ body {
     display: none;
   }
 
-  /* #VRButton{
+  #VRButton{
     margin-bottom: 70px !important;
-  } */
-
-  
+  }

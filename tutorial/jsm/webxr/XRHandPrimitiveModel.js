@@ -13,7 +13,7 @@ class XRHandPrimitiveModel {
 		this.controller = controller;
 		this.handModel = handModel;
 
-	  	this.envMap = null;
+	  this.envMap = null;
 
 		this.handMesh = new Group();
 		this.handModel.add( this.handMesh );

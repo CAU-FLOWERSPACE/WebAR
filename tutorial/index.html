@@ -6,15 +6,12 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 		<link type="text/css" rel="stylesheet" href="main.css">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-		<!--AR.js-->
-		<script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@1c2407b26c61958baa93967b5412487cd94b290b/dist/aframe-master.min.js"></script>
-		<script src="https://raw.githack.com/AR-js-org/AR.js/3.3.3/aframe/build/aframe-ar-nft.js"></script>  
 	</head>
 	<body>
 
 		<div id="content">
 			<div id="mySidenav" class="sidenav">
-				<a id="flower-list" href="javascript:void(0)" class="closebtn" onclick="closeNav()">PLANTS</a>
+				<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
 				<a class="ar-object" id="1" href="#">item_1</a>
 				<a class="ar-object" id="2" href="#">item_2</a>
 				<a class="ar-object" id="3" href="#">item_3</a>
@@ -70,25 +67,14 @@
 			});
 
 			$("#ARButton").click(function(){
-				// ① arToolkitSource 인스턴스 객체 생성
-
 				current_object.visible = false;
 				isAR = true;
-
-				var arToolkitSource = new THREEx.ArToolkitSource({   // ②카메라 탐색
-					sourceType : 'webcam',
-				})
-
-				arToolkitSource.init(function onReady(){
-					// handle resize of renderer
-					arToolkitSource.onResizeElement();
-				});
 			});
 
-			// $("#VRButton").click(function(){
-			// 	scene.background = envmap;
-			// 	scene.position.z = -2;
-			// });
+			$("#VRButton").click(function(){
+				scene.background = envmap;
+				scene.position.z = -2;
+			});
 
 			$("#place-button").click(function(){
 				arPlace();
@@ -96,7 +82,6 @@
 
 			function arPlace(){
 				if ( reticle.visible ) {
-
 					current_object.position.setFromMatrixPosition(reticle.matrix);
 					current_object.visible = true;
 				}
@@ -106,7 +91,7 @@
 				
 				new RGBELoader()
 					.setDataType(THREE.UnsignedByteType)
-					.setPath('./textures/')
+					.setPath('textures/')
 					.load('photo_studio_01_1k.hdr', function(texture){
 
 						envmap = pmremGenerator.fromEquirectangular(texture).texture;
@@ -116,18 +101,17 @@
 						pmremGenerator.dispose();
 						render();
 
-						var loader = new GLTFLoader().setPath('./3d/');
+						var loader = new GLTFLoader().setPath('3d/');
 						loader.load(model + ".glb", function(glb) {
 
 							current_object = glb.scene;
 							scene.add(current_object);
 
-							// call the arPlace function when the object is loaded too.
 							arPlace();
 
 							var box = new THREE.Box3();
 							box.setFromObject(current_object);
-							box.getCenter(controls.target);
+							box.center(controls.target);
 
 							controls.update();
 							render();
@@ -143,12 +127,8 @@
 				scene = new THREE.Scene();
 				window.scene = scene;
 
-				// cemara 추가!
 				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.001, 200 );
-				// camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-				scene.add( camera );
 
-				
 				var directionalLight = new THREE.DirectionalLight(0xdddddd, 1);
 				directionalLight.position.set(0, 0, 1).normalize();
 				scene.add(directionalLight);
@@ -162,8 +142,7 @@
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				renderer.xr.enabled = true;
-				// container.appendChild( renderer.domElement );
-				document.body.appendChild( renderer.domElement );
+				container.appendChild( renderer.domElement );
 
 				pmremGenerator = new THREE.PMREMGenerator(renderer);
 				pmremGenerator.compileEquirectangularShader();
@@ -176,10 +155,10 @@
 				controls.enableDamping = true;
 				controls.dampingFactor = 0.05;
 
-				// VR SETUP
-				// document.body.appendChild(VRButton.createButton(renderer));
+				//VR SETUP
+				document.body.appendChild(VRButton.createButton(renderer));
 
-				// AR SETUP
+				//AR SETUP
 
 				let options = {
 					requiredFeatures: ['hit-test'],
@@ -293,7 +272,7 @@
 
 							var box = new THREE.Box3();
 							box.setFromObject(current_object);
-							box.getCenter(controls.target);
+							box.center(controls.target);
 
 							document.getElementById("place-button").style.display = "none";
 

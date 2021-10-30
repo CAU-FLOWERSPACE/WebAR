@@ -14,11 +14,11 @@ class VRButton {
 
 			let currentSession = null;
 
-			async function onSessionStarted( session ) {
+			function onSessionStarted( session ) {
 
 				session.addEventListener( 'end', onSessionEnded );
 
-				await renderer.xr.setSession( session );
+				renderer.xr.setSession( session );
 				button.textContent = 'EXIT VR';
 
 				currentSession = session;
@@ -32,6 +32,9 @@ class VRButton {
 				button.textContent = 'ENTER VR';
 
 				currentSession = null;
+
+				window.scene.background = null;
+				window.scene.position.z = 0;
 
 			}
 
@@ -68,7 +71,7 @@ class VRButton {
 					// ('local' is always available for immersive sessions and doesn't need to
 					// be requested separately.)
 
-					const sessionInit = { optionalFeatures: [ 'local-floor', 'bounded-floor', 'hand-tracking', 'layers' ] };
+					const sessionInit = { optionalFeatures: [ 'local-floor', 'bounded-floor', 'hand-tracking' ] };
 					navigator.xr.requestSession( 'immersive-vr', sessionInit ).then( onSessionStarted );
 
 				} else {
