@@ -8,6 +8,7 @@ build/
 ### add ###
 .DS_Store
 /three.js-master
+/tutorial
 
 ### STS ###
 .apt_generated
