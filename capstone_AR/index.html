@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js ar - hit test</title>
+		<title>FlowerSpace</title>
 		<style>
 			body { margin: 0; }
 		</style>
@@ -20,13 +20,16 @@
 		<div id="content">
 			<div id="mySidenav" class="sidenav">
 				<div id="flower-list">
-					<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">PLANTS&nbsp;&nbsp;&nbsp;&nbsp;&times;</a>
+					<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&nbsp;&nbsp;&nbsp;&nbsp;&times;</a>
 				</div>
 				<div>
-					<a class="plant-obj" id="1" >plant_1</a>
+					<!-- {% for p in plants %} 
+							{{ p.plant_name }}-->
+					<a class="plant-obj" id="1" ><img src="2d/아이라이너 장미.jpg" width="90px" height="120px"></a>
 					<a class="plant-obj" id="2" >plant_2</a>
 					<a class="plant-obj" id="3" >plant_3</a>
 					<a class="plant-obj" id="4" >plant_4</a>
+					<!-- {% endfor %} -->
 				</div>
 			</div>
 	
@@ -39,7 +42,7 @@
 		
 		<script>
 			function openNav() {
-			  document.getElementById("mySidenav").style.width = "250px";
+			  document.getElementById("mySidenav").style.width = "130px";
 			}
 			
 			function closeNav() {
@@ -114,7 +117,7 @@
 				loader.load('./2d/아이라이너\ 장미.jpg', ( texture ) => {
 					// 꽃 이미지를 붙일 box geometry
 					// geometry = new THREE.BoxGeometry(texture.image.width, texture.image.height, texture.image.width);
-					geometry = new THREE.BoxGeometry(0.3, 0.4, 0.3);
+					geometry = new THREE.BoxGeometry(0.15, 0.2, 0.15);
 
 					console.log(texture.image.width);
 					console.log(texture.image.height);
