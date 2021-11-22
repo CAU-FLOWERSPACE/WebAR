@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>FLOWESPACE-AR</title>
+		<title>FlowerSpace</title>
 		<style>
 			body { margin: 0; }
 		</style>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<link rel="shortcut icon" href="#">  <!-- favicon.ioc 404 not found -->
 		<link type="text/css" rel="stylesheet" href="main.css">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-		<!-- <script src="build/three.js"></script> -->
-		<!--AR.js-->
-		<script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@1c2407b26c61958baa93967b5412487cd94b290b/dist/aframe-master.min.js"></script>
-		<script src="https://raw.githack.com/AR-js-org/AR.js/3.3.3/aframe/build/aframe-ar-nft.js"></script>  <!-- THREEx-->
+		<!-- AR.js  THREEx -->
+		<!-- <script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@1c2407b26c61958baa93967b5412487cd94b290b/dist/aframe-master.min.js"></script> -->
+		<!-- <script src="https://raw.githack.com/AR-js-org/AR.js/3.3.3/aframe/build/aframe-ar-nft.js"></script>   -->
 	</head>
 	<body>
 
@@ -20,26 +20,28 @@
 		<div id="content">
 			<div id="mySidenav" class="sidenav">
 				<div id="flower-list">
-					<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">PLANTS&nbsp;&nbsp;&nbsp;&nbsp;&times;</a>
+					<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&nbsp;&nbsp;&nbsp;&nbsp;&times;</a>
 				</div>
-				<div>
-					<a class="plant-obj" id="1" href="#">plant_1</a>
-					<a class="plant-obj" id="2" href="#">plant_2</a>
-					<a class="plant-obj" id="3" href="#">plant_3</a>
-					<a class="plant-obj" id="4" href="#">plant_4</a>
-				</div>
+				<!-- {% for p in plants %} 
+					<a class="plant-obj" id="1" ><img src="2d/아이라이너 장미.jpg" width="90px" height="120px"></a>
+					{{ p.name }}
+				-->
+					<a class="plant-obj" id="1" ><img src="2d/아이라이너 장미.jpg" width="90px" height="120px"></a>
+					<!-- <h5>아이라이너 장미</h5> -->
+					<a class="plant-obj" id="1" ><img src="2d/아이라이너 장미.jpg" width="90px" height="120px"></a>
+				<!-- {% endfor %} -->
 			</div>
-			<div id="container" style="position: fixed;"></div>
-
-			<span style="font-size:30px;cursor:pointer;position: absolute;" onclick="openNav()">&#9776; open</span>
 	
+			<div id="container" style="position: fixed;"></div>
+			  
+			<span style="font-size:30px;cursor:pointer;position: absolute;" onclick="openNav()">&#9776; open</span>
+		
 			<button type="button" id="place-button">PLACE</button>
-			
 		</div>
-
+		
 		<script>
 			function openNav() {
-			  document.getElementById("mySidenav").style.width = "250px";
+			  document.getElementById("mySidenav").style.width = "130px";
 			}
 			
 			function closeNav() {
@@ -48,12 +50,12 @@
 		</script>
 		<!-- END Menu-bar -->
 
-
 		<script type="module">
 
 			import * as THREE from './build/three.module.js';
-			import { ARButton } from './jsm/webxr/ARButton.js';  // customizing ARButton
-			
+			import { ARButton } from './jsm/webxr/ARButton.js';
+			import { VRButton } from './jsm/webxr/VRButton.js';
+			//
 			import { OrbitControls } from './jsm/controls/OrbitControls.js';
 			import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
 			import { RGBELoader } from './jsm/loaders/RGBELoader.js';
@@ -71,6 +73,8 @@
 			var hitTestSource = null;
 			var hitTestSourceRequested = false;
 
+			var touchDown, touchX, touchY, deltaX, deltaY;
+
 			init();
 			animate();
 
@@ -84,12 +88,12 @@
 			});
 
 			$("#ARButton").click(function(){
-
 				current_object.visible = false;
 				isAR = true;
 			});
 
-			/* 꽃 사진 place 하는 버튼 -> 수정 필요
+
+			/* 꽃 사진 place 하는 버튼 -> 수정 필요 */
 			// place plant button
 			$("#place-button").click(function(){
 				arPlace();
@@ -97,12 +101,85 @@
 
 			function arPlace(){
 				if ( reticle.visible ) {
-
 					current_object.position.setFromMatrixPosition(reticle.matrix);
 					current_object.visible = true;
 				}
 			}
-			*/
+
+			/*  3D glb 불러와서 띄워주는 함수 
+			-> 꽃간에서는 이미지 띄워주는 함수로 수정 필요 */
+			function loadModel(model){
+
+				var geometry;
+				
+				const loader = new THREE.TextureLoader();
+				loader.load('./2d/아이라이너\ 장미.jpg', ( texture ) => {
+					// 꽃 이미지를 붙일 box geometry
+					// geometry = new THREE.BoxGeometry(texture.image.width, texture.image.height, texture.image.width);
+					geometry = new THREE.BoxGeometry(0.15, 0.2, 0.15);
+
+					console.log(texture.image.width);
+					console.log(texture.image.height);
+					const material = new THREE.MeshBasicMaterial({
+						map: texture,
+					});
+					//
+					envmap = pmremGenerator.fromEquirectangular(texture).texture;
+
+					scene.environment = envmap;
+					texture.dispose();
+					pmremGenerator.dispose();
+					render();
+					//
+					
+					current_object = new THREE.Mesh(geometry, material);
+  					scene.add(current_object);
+
+					arPlace();
+
+					var box = new THREE.Box3();
+					box.setFromObject(current_object);
+					box.getCenter(controls.target);
+
+					controls.update();
+					render();
+					
+				});
+
+				
+
+				/*
+				new RGBELoader()
+					.setDataType(THREE.UnsignedByteType)
+					.setPath('textures/')
+					.load('photo_studio_01_1k.hdr', function(texture){
+
+						envmap = pmremGenerator.fromEquirectangular(texture).texture;
+
+						scene.environment = envmap;
+						texture.dispose();
+						pmremGenerator.dispose();
+						render();
+
+						var loader = new GLTFLoader().setPath('3d/');
+						loader.load(model + ".glb", function(glb) {
+
+							current_object = glb.scene;
+							scene.add(current_object);
+
+							// call the arPlace function when the object is loaded too.
+							arPlace();
+
+							var box = new THREE.Box3();
+							box.setFromObject(current_object);
+							box.getCenter(controls.target);
+
+							controls.update();
+							render();
+						});
+					}); */
+			}
+
 
 			function init() {
 
@@ -112,72 +189,85 @@
 				scene = new THREE.Scene();
 				window.scene = scene;
 
-				// cemara 추가!
 				// camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.001, 200 );
-				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-				scene.add( camera );
+				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 100 );
 
 				/* change the light setting */
 				var directionalLight = new THREE.DirectionalLight(0xdddddd, 1);
 				directionalLight.position.set(0, 0, 1).normalize();
+				directionalLight.castShadow = true
 				scene.add(directionalLight);
 
 				var ambientLight = new THREE.AmbientLight(0x222222);
 				scene.add(ambientLight);
 				
+				////
+				// const light = new THREE.SpotLight( 0xffffff, 1.5 );
+				// light.position.set( 0, 1500, 200 );
+				// light.angle = Math.PI * 0.2;
+				// light.castShadow = true;
+				// light.shadow.camera.near = 200;
+				// light.shadow.camera.far = 2000;
+				// light.shadow.bias = - 0.000222;
+				// light.shadow.mapSize.width = 1024;
+				// light.shadow.mapSize.height = 1024;
+				// scene.add( light );
+				////
 
-				renderer = new THREE.WebGLRenderer({ 
-					antialias: true,
+				renderer = new THREE.WebGLRenderer( { 
+					antialias: true, 
 					alpha: true 
 				});
-
-				// WebGLRenderer 설정
 				renderer.setClearColor(new THREE.Color('lightgrey'), 0)
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
-				renderer.xr.enabled = true;   //####################
-				// renderer.shadowMap.enabled = true;
-				container.appendChild( renderer.domElement );
-				document.body.appendChild( renderer.domElement );
+				renderer.xr.enabled = true;
+				renderer.shadowMap.enabled = true;
+    			// renderer.shadowMapSoft = true;
 
-				/* */
+				container.appendChild( renderer.domElement );
+				document.body.appendChild( renderer.domElement ); 
+
+				/*  */
 				pmremGenerator = new THREE.PMREMGenerator(renderer);
 				pmremGenerator.compileEquirectangularShader();
 
 				controls = new OrbitControls(camera, renderer.domElement);
 				controls.addEventListener('change', render);
-				controls.minDistance = 2;
-				controls.maxDistance = 10;
+				controls.minDistance = 1;
+				controls.maxDistance = 4;
 				controls.target.set(0, 0, -0.2);
-				controls.enableDamping = true;
-				controls.dampingFactor = 0.05;
+				controls.enableDamping = true;  // 부드러운 애니메이션
+				// controls.dampingFactor = 0.05;
 
-				// AR SETUP
+				//VR SETUP
+				// document.body.appendChild(VRButton.createButton(renderer));
+
+				//AR SETUP
+
 				let options = {
 					requiredFeatures: ['hit-test'],
-					optionalFeatures: ['dom-overlay'],
+					optionalFeatures: ['dom-overlay'],  // , 'dom-overlay-for-handheld-ar'
+					domOverlay: { root: document.body }  // root: document.body -> 이렇게 넣어야 카메라 켜도 STOP AR 버튼이 생김
 				}
 
-				options.domOverlay = { root: document.getElementById('content')};
+				document.body.appendChild( ARButton.createButton(renderer, options) );
 
-				document.body.appendChild( ARButton.createButton(renderer, camera, options));
+				//document.body.appendChild( ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ) );
 
-				// var geometry = new THREE.CyilnderBufferGeometry(0.1, 0.1, 0.2, 32).translate(0, 0.1, 0);  // CYLINDER 
+				//
 
-				/* */
 				reticle = new THREE.Mesh(
-					new THREE.RingBufferGeometry( 0.15, 0.2, 32 ).rotateX( - Math.PI / 2 ),
+					new THREE.RingBufferGeometry( 0.15, 0.2, 32 ).rotateX( - Math.PI / 2 ),  // hit-test 할 때 object 를 위치시킬 ring
 					new THREE.MeshBasicMaterial()
 				);
 				reticle.matrixAutoUpdate = false;
 				reticle.visible = false;
 				scene.add( reticle );
-				/* */
 
-				// 3D 객체 click, rotate 하면 불리는 이벤트 등록
-				// 꽃간에서는 rotate 는 필요 없을 것 같고, 꽃을 움직일 수 있는 것만 만들면 될 듯\
-				/* */
-				var touchDown, touchX, touchY, deltaX, deltaY;
+				//
+
+				window.addEventListener( 'resize', onWindowResize, false );
 
 				renderer.domElement.addEventListener('touchstart', function(e){
 					e.preventDefault();
@@ -206,59 +296,31 @@
 					rotateObject();
 
 				}, false);
-				/* */
 
-			}  // finish init()
+			}
 
 
-			/* 3D 객체 rotate */
 			function rotateObject(){
 				if(current_object && reticle.visible){
 					current_object.rotation.y += deltaX / 100;
 				}
 			}
-			
 
-			/*  */
-			function animate() {
-				renderer.setAnimationLoop( render );
-				requestAnimationFrame(animate);
-				controls.update();
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
 			}
-			
-			/*  3D glb 불러와서 띄워주는 함수 
-			-> 꽃간에서는 이미지 띄워주는 함수로 수정 필요 */
-			function loadModel(model){
-				
-				new RGBELoader()
-					.setDataType(THREE.UnsignedByteType)
-					.setPath('./textures/')
-					.load('photo_studio_01_1k.hdr', function(texture){
 
-						envmap = pmremGenerator.fromEquirectangular(texture).texture;
+			//
 
-						scene.environment = envmap;
-						texture.dispose();
-						pmremGenerator.dispose();
-						render();
+			function animate() {
 
-						var loader = new GLTFLoader().setPath('./3d/');
-						loader.load(model + ".glb", function(glb) {
-
-							current_object = glb.scene;
-							scene.add(current_object);
-
-							// call the arPlace function when the object is loaded too.
-							// arPlace();
-
-							var box = new THREE.Box3();
-							box.setFromObject(current_object);
-							box.getCenter(controls.target);
-
-							controls.update();
-							render();
-						});
-					});
+				renderer.setAnimationLoop( render );
+				requestAnimationFrame(animate);  // recursive
+				controls.update();  // 각 프레임 마다 update
 			}
 
 			/* frame is a Web XR API frame property */
@@ -267,14 +329,17 @@
 				if ( frame && isAR ) {
 
 					var referenceSpace = renderer.xr.getReferenceSpace();
-					var session = renderer.xr.getSession();  // ARButton 에서 setSession 하면 hall_empty.glb 로드됨
+					var session = renderer.xr.getSession();
 
+					// requestHitTestSource()
 					if ( hitTestSourceRequested === false ) {
 
 						session.requestReferenceSpace( 'viewer' ).then( function ( referenceSpace ) {
 
 							session.requestHitTestSource( { space: referenceSpace } ).then( function ( source ) {
+
 								hitTestSource = source;
+
 							} );
 
 						} );
@@ -283,6 +348,7 @@
 
 							hitTestSourceRequested = false;
 							hitTestSource = null;
+							referenceSpace = null;
 
 							isAR = false;
 
@@ -300,13 +366,15 @@
 
 					}
 
+					// getHitTestResults( frame )
 					if ( hitTestSource ) {
 
 						var hitTestResults = frame.getHitTestResults( hitTestSource );
 
 						if ( hitTestResults.length ) {
 
-							var hit = hitTestResults[0];
+							const referenceSpace = renderer.xr.getReferenceSpace();
+							const hit = hitTestResults[ 0 ];
 
 							document.getElementById("place-button").style.display = "block";
 
@@ -316,20 +384,17 @@
 						} else {
 
 							reticle.visible = false;
-
 							document.getElementById("place-button").style.display = "none";
 
 						}
-
 					}
 
 				}
 
 				renderer.render( scene, camera );
-			}
-			
 
-			// renderer.render( scene, camera );
+			}
+
 		</script>
 	</body>
 </html>
