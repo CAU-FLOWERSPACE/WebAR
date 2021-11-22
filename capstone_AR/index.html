@@ -146,38 +146,6 @@
 					
 				});
 
-				
-
-				/*
-				new RGBELoader()
-					.setDataType(THREE.UnsignedByteType)
-					.setPath('textures/')
-					.load('photo_studio_01_1k.hdr', function(texture){
-
-						envmap = pmremGenerator.fromEquirectangular(texture).texture;
-
-						scene.environment = envmap;
-						texture.dispose();
-						pmremGenerator.dispose();
-						render();
-
-						var loader = new GLTFLoader().setPath('3d/');
-						loader.load(model + ".glb", function(glb) {
-
-							current_object = glb.scene;
-							scene.add(current_object);
-
-							// call the arPlace function when the object is loaded too.
-							arPlace();
-
-							var box = new THREE.Box3();
-							box.setFromObject(current_object);
-							box.getCenter(controls.target);
-
-							controls.update();
-							render();
-						});
-					}); */
 			}
 
 
@@ -253,9 +221,6 @@
 
 				document.body.appendChild( ARButton.createButton(renderer, options) );
 
-				//document.body.appendChild( ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ) );
-
-				//
 
 				reticle = new THREE.Mesh(
 					new THREE.RingBufferGeometry( 0.15, 0.2, 32 ).rotateX( - Math.PI / 2 ),  // hit-test 할 때 object 를 위치시킬 ring
